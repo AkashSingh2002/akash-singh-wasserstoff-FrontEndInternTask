@@ -1,13 +1,14 @@
-import '../styles/globals.css'
-import { UserProvider } from '../providers/user-provider'
+
+import { UserProvider } from './providers'
 import type { Metadata } from 'next'
 import { Inter } from 'next/font/google'
+import './globals.css'
 
 const inter = Inter({ subsets: ['latin'] })
 
 export const metadata: Metadata = {
-  title: 'Collaborative Document Editor',
-  description: 'Real-time collaborative document editor with Y.js',
+  title: 'Collaborative Editor',
+  description: 'Real-time collaborative document editor',
 }
 
 export default function RootLayout({

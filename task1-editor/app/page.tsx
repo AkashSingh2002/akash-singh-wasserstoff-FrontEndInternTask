@@ -3,8 +3,8 @@
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { useUser } from '../providers'
-import LoginModal from '../components/LoginModal'
+import { useUser } from './providers'
+import LoginModal from './_components/LoginModal'
 
 export default function Home() {
   const { username } = useUser()
@@ -20,7 +20,6 @@ export default function Home() {
         const rooms = JSON.parse(savedRooms)
         setRecentRooms(Array.isArray(rooms) ? rooms : [])
       } catch (e) {
-        // Handle parse error
         localStorage.removeItem('recent-rooms')
       }
     }
@@ -34,6 +33,10 @@ export default function Home() {
   // Create a new document with a random ID
   const createNewDocument = () => {
     const newRoomId = generateRoomId()
+    // Update recent rooms
+    const updatedRooms = [newRoomId, ...recentRooms.filter(id => id !== newRoomId)].slice(0, 5)
+    setRecentRooms(updatedRooms)
+    localStorage.setItem('recent-rooms', JSON.stringify(updatedRooms))
     router.push(`/editor/${newRoomId}`)
   }
 
@@ -41,6 +44,10 @@ export default function Home() {
   const joinRoom = (e: React.FormEvent) => {
     e.preventDefault()
     if (roomId.trim()) {
+      // Update recent rooms
+      const updatedRooms = [roomId.trim(), ...recentRooms.filter(id => id !== roomId.trim())].slice(0, 5)
+      setRecentRooms(updatedRooms)
+      localStorage.setItem('recent-rooms', JSON.stringify(updatedRooms))
       router.push(`/editor/${roomId.trim()}`)
     }
   }
@@ -56,7 +63,7 @@ export default function Home() {
         
         <div className="grid gap-8 mb-12">
           <div className="bg-white p-6 rounded-lg shadow-sm">
-            <h2 className="text-xl font-semibold mb-4">Create New Document</h2>
+            <h2 className="text-xl text-black font-semibold mb-4">Create New Document</h2>
             <p className="text-gray-600 mb-4">
               Start a new collaborative document with a randomly generated ID.
             </p>
@@ -70,7 +77,7 @@ export default function Home() {
           </div>
           
           <div className="bg-white p-6 rounded-lg shadow-sm">
-            <h2 className="text-xl font-semibold mb-4">Join Existing Document</h2>
+            <h2 className="text-xl text-black font-semibold mb-4">Join Existing Document</h2>
             <form onSubmit={joinRoom}>
               <div className="mb-4">
                 <label htmlFor="room-id" className="block text-sm font-medium text-gray-700 mb-1">
@@ -82,7 +89,7 @@ export default function Home() {
                   value={roomId}
                   onChange={(e) => setRoomId(e.target.value)}
                   placeholder="Enter document ID"
-                  className="w-full p-2 border rounded"
+                  className="w-full text-black p-2 border rounded"
                   disabled={!username}
                   required
                 />
@@ -97,16 +104,15 @@ export default function Home() {
             </form>
           </div>
           
-          {/* Recent documents section */}
           {recentRooms.length > 0 && (
             <div className="bg-white p-6 rounded-lg shadow-sm">
-              <h2 className="text-xl font-semibold mb-4">Recent Documents</h2>
+              <h2 className="text-xl bg-green-600 text-black font-semibold mb-4">Recent Documents</h2>
               <ul className="space-y-2">
                 {recentRooms.map((room) => (
                   <li key={room}>
                     <Link
                       href={`/editor/${room}`}
-                      className="block p-3 border rounded hover:bg-gray-50 transition"
+                      className="block bg-green-600 p-3 border rounded hover:bg-gray-50 transition"
                     >
                       Document: {room}
                     </Link>

@@ -1,116 +1,40 @@
-import { useEffect, useState, useRef } from 'react'
+'use client'
+
 import * as Y from 'yjs'
 import { WebsocketProvider } from 'y-websocket'
-import { useUser } from '../providers'
+import { useEffect, useState } from 'react'
 
-interface YjsState {
-  yDoc: Y.Doc | null
-  yText: Y.Text | null
-  provider: WebsocketProvider | null
-  isConnected: boolean
-  error: string | null
-}
-
-const providersCache = new Map<string, {
-  doc: Y.Doc,
-  provider: WebsocketProvider,
-  text: Y.Text,
-  connectionCount: number
-}>()
-
-export function useYjs(roomId: string): YjsState {
-  const { username, color } = useUser()
-  const [state, setState] = useState<YjsState>({
-    yDoc: null,
-    yText: null,
-    provider: null,
-    isConnected: false,
-    error: null
-  })
-  
-  const cleanup = useRef<(() => void) | null>(null)
+export function useYjs(roomId: string) {
+  const [yDoc] = useState(new Y.Doc())
+  const [yText] = useState(yDoc.getText('content'))
+  const [provider, setProvider] = useState<WebsocketProvider | null>(null)
+  const [isConnected, setIsConnected] = useState(false)
 
   useEffect(() => {
-    if (!roomId) {
-      setState(prev => ({ ...prev, error: 'No room ID provided' }))
-      return
+    const wsProvider = new WebsocketProvider(
+      process.env.NEXT_PUBLIC_WS_URL || 'ws://localhost:1234',
+      roomId,
+      yDoc
+    )
+
+    const handleStatus = (event: { status: 'connected' | 'disconnected' }) => {
+      setIsConnected(event.status === 'connected')
     }
 
-    const fullRoomName = `collaborative-editor-${roomId}`
-    let cacheEntry = providersCache.get(fullRoomName)
-    let doc: Y.Doc
-    let provider: WebsocketProvider
-    let text: Y.Text
-    
-    if (!cacheEntry) {
-      doc = new Y.Doc()
-      text = doc.getText('editor')
-      const wsUrl = process.env.NEXT_PUBLIC_WS_URL || 'wss://demos.yjs.dev'
-      
-      provider = new WebsocketProvider(wsUrl, fullRoomName, doc)
-      
-      // Set initial awareness state
-      if (username) {
-        provider.awareness.setLocalStateField('user', {
-          name: username,
-          color: color
-        })
-      }
-
-      cacheEntry = {
-        doc,
-        provider,
-        text,
-        connectionCount: 1
-      }
-      providersCache.set(fullRoomName, cacheEntry)
-    } else {
-      doc = cacheEntry.doc
-      provider = cacheEntry.provider
-      text = cacheEntry.text
-      cacheEntry.connectionCount++
-      providersCache.set(fullRoomName, cacheEntry)
-    }
-
-    const handleStatusChange = (event: { status: 'connected' | 'disconnected' }) => {
-      setState(prev => ({
-        ...prev,
-        isConnected: event.status === 'connected',
-        error: event.status === 'disconnected' ? 'WebSocket disconnected' : null
-      }))
-    }
-    
-    provider.on('status', handleStatusChange)
-    
-    setState({
-      yDoc: doc,
-      yText: text,
-      provider,
-      isConnected: provider.wsconnected,
-      error: null
-    })
-
-    cleanup.current = () => {
-      provider.off('status', handleStatusChange)
-      
-      const entry = providersCache.get(fullRoomName)
-      if (entry) {
-        entry.connectionCount--
-        
-        if (entry.connectionCount <= 0) {
-          provider.disconnect()
-          doc.destroy()
-          providersCache.delete(fullRoomName)
-        } else {
-          providersCache.set(fullRoomName, entry)
-        }
-      }
-    }
+    wsProvider.on('status', handleStatus)
+    setProvider(wsProvider)
 
     return () => {
-      cleanup.current?.()
+      wsProvider.off('status', handleStatus)
+      wsProvider.destroy()
+      yDoc.destroy()
     }
-  }, [roomId, username, color])
+  }, [roomId, yDoc])
 
-  return state
+  return { 
+    yDoc,
+    yText,
+    provider: isConnected ? provider : null,
+    isConnected
+  }
 }
