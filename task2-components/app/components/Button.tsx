@@ -1,21 +1,49 @@
 'use client';
 
-type ButtonProps = {
+import React from 'react';
+
+export interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   label: string;
-  onClick?: () => void;
-  variant?: 'primary' | 'secondary';
-  type?: 'button' | 'submit' | 'reset';
+  variant?: 'primary' | 'secondary' | 'outline';
+  size?: 'small' | 'medium' | 'large';
+  fullWidth?: boolean;
+}
+
+const variantStyles = {
+  primary: 'bg-blue-600 text-white hover:bg-blue-700 focus:ring-2 focus:ring-blue-500',
+  secondary: 'bg-gray-200 text-gray-800 hover:bg-gray-300 focus:ring-2 focus:ring-gray-500',
+  outline: 'border border-blue-600 text-blue-600 hover:bg-blue-50 focus:ring-2 focus:ring-blue-500',
 };
 
-const Button = ({ label, onClick, variant = 'primary', type = 'button' }: ButtonProps) => {
-  const base = 'px-4 py-2 font-semibold rounded focus:outline-none';
-  const style =
-    variant === 'primary'
-      ? 'bg-blue-600 text-white hover:bg-blue-700'
-      : 'bg-gray-200 text-black hover:bg-gray-300';
+const sizeStyles = {
+  small: 'px-2 py-1 text-xs',
+  medium: 'px-4 py-2 text-sm',
+  large: 'px-6 py-3 text-base',
+};
+
+const Button: React.FC<ButtonProps> = ({
+  label,
+  variant = 'primary',
+  size = 'medium',
+  fullWidth = false,
+  className = '',
+  ...props
+}) => {
+  const baseStyles = 'rounded font-semibold transition-colors duration-200 focus:outline-none';
+  
+  const combinedClassName = [
+    baseStyles,
+    variantStyles[variant],
+    sizeStyles[size],
+    fullWidth ? 'w-full' : '',
+    className
+  ].filter(Boolean).join(' ');
 
   return (
-    <button type={type} onClick={onClick} className={`${base} ${style}`}>
+    <button 
+      className={combinedClassName} 
+      {...props}
+    >
       {label}
     </button>
   );

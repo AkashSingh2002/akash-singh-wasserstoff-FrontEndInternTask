@@ -1,36 +1,39 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Component Library SDK
 
-## Getting Started
+## Overview
+This project demonstrates a reusable component library built with React, TypeScript, and Tailwind CSS. The library includes customizable components that can be easily integrated into different projects.
 
-First, run the development server:
+## Components
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+### Button
+A flexible button component with multiple variants and sizes.
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+#### Props
+- `label`: Button text
+- `variant`: 'primary' | 'secondary' | 'outline'
+- `size`: 'small' | 'medium' | 'large'
+- `fullWidth`: Optional boolean to make button full width
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### Input
+A customizable input component with built-in error handling.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+#### Props
+- `label`: Input label
+- `error`: Optional error message
+- `fullWidth`: Optional boolean to make input full width
 
-## Learn More
+### Card
+A versatile card component with optional header and footer.
 
-To learn more about Next.js, take a look at the following resources:
+#### Props
+- `title`: Card title
+- `description`: Optional card description
+- `variant`: 'default' | 'elevated' | 'outlined'
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Demo Pages
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+### Demo 1: Registration Form
+A comprehensive form demonstrating input validation and component usage.
 
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+### Demo 2: Todo List
+A todo list application showcasing state management
